@@ -1,0 +1,75 @@
+#!/usr/bin/perl -l
+
+=head1 DESCRIPTION
+
+Naive program for B<Window Manager> selection: (over)writes one's
+F<`~/.xinitrc'>.  Data for the program is appended literally at
+the end of it, after the __END__ token and has the form
+
+C<< <key>:<name>:<cmd> >>
+
+where <key> is the key to be selected by the user, preferably
+consisting of one or at most a few chars, <name> is the name of
+the Window Manager and <cmd> is the command to be put in F<`~/.xinitrc'>.
+<key> is case-insensitive and shown uppercase.
+
+In the unlikely event that any item contains literal C<:>'s, any longer
+string of colons can be used as a separator instead, like thus:
+
+C<L::LCM:Cool!::exec lcmwm>
+
+Lines with no colons are silently ignored. No additional checking is
+performed.
+
+=cut
+
+use strict;
+use warnings;
+
+my ($q,%wm,%saw)='Q'; # Quit Key
+
+while (<DATA>) {
+    chomp;
+    my $sep;
+    $sep |= $_ for /:+/g;
+    $sep or next;
+    my ($k,$n,$cmd)=split /$sep/;
+    $k=uc $k;
+    (warn "$0: Cannot use [$k] as a key for `$n'"),
+      next if $k eq $q;
+    (warn "$0: Duplicate key [$k]. Skipping `$n'"),
+      next if $saw{$k}++;
+    $wm{$k}=[$n,$cmd];
+}
+
+{
+    print "Choose Window Manager:";
+    print "[$_] $wm{$_}[0]" for sort keys %wm;
+    print "[$q] <QUIT>";
+    
+    chomp(my $in=uc <STDIN>);
+    last if $in eq $q;
+    
+    exists $wm{$in} or
+      (warn "Invalid choice: [$in]\n"), redo;
+    
+    open my $fh, '>', "$ENV{HOME}/.xinitrc" or
+      die "Can't write to ~/.xinitrc: $!\n";
+    print $fh $wm{$in}[1];
+    print <<"EOT";
+`~/.xinitrc' successfully updated for use with $wm{$in}[0]!
+Do you want to start X now? 
+[y/Y] to do so, anything else to quit.
+EOT
+exec 'startx' 
+  if uc <STDIN> eq "Y\n";
+}
+
+__END__
+K:KDE:exec startkde
+Xm:Xmonad:exec xmonad
+X4:XFce4:exec startxfce4
+F:Fluxbox:exec fluxbox
+L:LXDE:exec startlxde
+A:Awesome:exec awesome
+I:i3:exec i3

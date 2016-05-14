@@ -1,75 +1,219 @@
-#!/usr/bin/perl -l
+#!/usr/bin/python
 
-=head1 DESCRIPTION
+# Author:       Gabriele Bozzola (sbozzolo)
+# Email:        sbozzolator@gmail.com
+# Date:         11.05.2016
+# Last Edit:    11.05.2016 (sbozzolo)
 
-Naive program for B<Window Manager> selection: (over)writes one's
-F<`~/.xinitrc'>.  Data for the program is appended literally at
-the end of it, after the __END__ token and has the form
+#~ This module is used to draw the interface
+import npyscreen as nps
 
-C<< <key>:<name>:<cmd> >>
+#~ To rename xinitrc
+import os
 
-where <key> is the key to be selected by the user, preferably
-consisting of one or at most a few chars, <name> is the name of
-the Window Manager and <cmd> is the command to be put in F<`~/.xinitrc'>.
-<key> is case-insensitive and shown uppercase.
+#~ This dictionary is intended to contain every string of Userconf, 
+#~ so it is easier to modify text and maintain the code compact
 
-In the unlikely event that any item contains literal C<:>'s, any longer
-string of colons can be used as a separator instead, like thus:
+words = {'MainFormName'   : "wmchoose", 
+         'ExitText'       : "Esci",
+         'MenuButtonText' : "Seleziona WM",
+         'MainFormText'   : "Questo script ti selezionare il tuo gestore " 
+                            + "di interfaccia grafica (Windows Manager)."
+                            + " Per selezionarlo premi invio.",
+         'ConfirmExit'    : "Sicuro di voler uscire?",
+         'ExitUserconf'   : "Esci da wmchoose",
+         'SomethingWrong' : "Qualcosa e' andato storto! Accipigna!",
+         'Success'        : "Successo!",
+         'OpSuccess'      : "L'operazione e' stata portata a termine con "
+                            + "successo!",
+         'kde'            : "KDE e' Kebab",
+         'xm'             : "xmonad e' BigMac",
+         'x4'             : "XFCE e' Pizza",
+         'flux'           : "Fluxbox e' Gelato",
+         'lxde'           : "LXDE e' Sushi",
+         'aw'             : "Awesome e' Piadina",
+         'i3'             : "I3 e' Banana",
+         'Warning'        : "Attenzione!",
+         'MoreThanOne'    : "Non puoi selezionare piu' di un manager!",
+         'AtLeastOne'     : "Devi operare una scelta!",
+         'Customization'  : "Il tuo file .xinitrc e' stato personalizzato."
+                            + " Vuoi conservare le personalizzazioni?",
+         'Backupped'      : "Il tuo file precedente e' salvato in .xinitOLD"
+         }
+                            
+########################################################################
+#                                                                      #
+#            Box: Overloads nps.BoxBasic to contain only a             #
+#            checkox widget, not a multiline                           #
+#                                                                      #
+########################################################################       
+   
+                   
+class Box (nps.BoxTitle):
+    _contained_widget = nps.CheckBox
+                   
+                  
+########################################################################
+#                                                                      #
+#            MainForm: MAIN form, call menu and other forms            #
+#            Contains menu and shortcut to every feature               #
+#                                                                      #
+########################################################################
 
-C<L::LCM:Cool!::exec lcmwm>
+class MainForm (nps.ActionFormV2):
+    """Class that draws the main screen of wmchoose"""
+        
+    #~ Rename button using Italian language
+    OK_BUTTON_TEXT      = words['ExitText']
+    CANCEL_BUTTON_TEXT  = words['MenuButtonText']
+        
+    #~ Create form elements and menus
+    def create(self):
+        """Add to the form the widgets"""
+        #~ Display the options
+        self.add(nps.FixedText, value = words['MainFormText'], editable = False)
+        self.nextrely += 1 #~ Shift down the options
+        self.kde = self.add(Box, name = "KDE", min_width = 30, max_height = 5)
+        self.kde.entry_widget.name = words['kde'] #~ Set description
+        self.xm = self.add(Box, name = "xmonad", min_width = 30, max_height = 5)
+        self.xm.entry_widget.name = words['xm']
+        self.x4 = self.add(Box, name = "XFCE 4", min_width = 30, max_height = 5)
+        self.x4.entry_widget.name = words['x4']
+        self.flux = self.add(Box, name = "Fluxbox", min_width = 30, max_height = 5)
+        self.flux.entry_widget.name = words['flux']
+        self.lxde = self.add(Box, name = "LXDE", min_width = 30, max_height = 5)
+        self.lxde.entry_widget.name = words['lxde']
+        self.aw = self.add(Box, name = "Awesome", min_width = 30, max_height = 5)
+        self.aw.entry_widget.name = words['aw']
+        self.i3 = self.add(Box, name = "I3", min_width = 30, max_height = 5)
+        self.i3.entry_widget.name = words['i3']
+                    
+    def on_cancel(self):
+        """Performs checks and change .xinitrc"""
+        
+        #~ Check if there are more than oselection
+        entries = (self.kde.entry_widget.value,
+                   self.xm.entry_widget.value,
+                   self.x4.entry_widget.value,
+                   self.flux.entry_widget.value,
+                   self.lxde.entry_widget.value,
+                   self.aw.entry_widget.value,
+                   self.i3.entry_widget.value)
+                   
+        count =  sum([1 for ct in entries if ct])
+        
+        if (count > 1):
+            nps.notify_confirm(words['MoreThanOne'], words['Warning'])
+            return #~ If there are more than 1 checked retry
+            
+        if (count == 0):
+            nps.notify_confirm(words['AtLeastOne'], words['Warning'])
+            return   #~ If there are less than 1 checked retry
+        
+        #~ Set the xinit string
+        if (self.kde.entry_widget.value == True):
+            text = "exec startkde\n"
+        elif (self.xm.entry_widget.value == True):
+            text = "exec xmonad\n"
+        elif (self.x4.entry_widget.value == True):
+            text = "exec startxfce4\n"
+        elif (self.flux.entry_widget.value == True):
+            text = "exec fluxbos\n"
+        elif (self.lxde.entry_widget.value == True):
+            text = "exec startlxde\n"
+        elif (self.lxde.entry_widget.value == True):
+            text = "exec awesome\n"
+        elif (self.i3.entry_widget.value == True):
+            text = "exec i3\n"
+        
+        
+        #~ Search for user's customizations by counting the number of lines
+        #~ in the file. A vanilla file should have one line
+        try:
+            num = sum(1 for line in open('.xinitrc'))
+        except:
+            nps.notify_confirm(words['SomethingWrong'], words['Warning'])               #~ If something went wrong
+            self.exit_application()
+            return
+            
+        if (num <= 1):
+            try:
+                xinit = open(".xinitrc", 'w')   #~ Open the file in write mode
+                xinit.truncate()                #~ Erase the configuration file
+                xinit.write(text)               #~ Write configuration
+                xinit.close()                   #~ Closes file
+                nps.notify_confirm(words['OpSuccess'], words['Success'], editw = 1)
+                self.exit_application()  
+                return
+            except:
+                nps.notify_confirm(words['SomethingWrong'], words['Warning'], editw = 1)               #~ If something went wrong
+                self.exit_application()
+                return
+        else:
+            #~ Ask if user want to presever customizations
+            cust = nps.notify_yes_no(words['Customization'], words['Warning'], editw = 2)
+            if (cust): #~ If he wants delete the last line and rewrite with the new command
+                try:
+                    xinit = open(".xinitrc", 'r')   #~ Open the file in rw mode
+                    lines = xinit.readlines()
+                    lines = lines[:-1]
+                    xinit.close()
+                    xinit = open(".xinitrc", 'w')
+                    xinit.truncate()
+                    xinit.writelines(lines)
+                    xinit.write(text)
+                    xinit.close()
+                    nps.notify_confirm(words['OpSuccess'], words['Success'], editw = 1)
+                    self.exit_application()  
+                    return
+                except:
+                    nps.notify_confirm(words['SomethingWrong'], words['Warning'], editw = 1)
+                    self.exit_application()
+                    return
+            else: #~ If he doesn't want make a backup and write a new conf file
+                try:
+                    os.rename(".xinitrc", ".xinitrcOLD")
+                    xinit = open(".xinitrc", 'w')   #~ Open the file in append mode
+                    xinit.write("exec startxfce4\n")
+                    xinit.close()
+                    notify_confirm(words['OpSuccess'] + "\n" + words['Bakupped'], 
+                                        words['Success'], editw = 1)
+                    self.exit_application()
+                    return
+                except:
+                    nps.notify_confirm(words['SomethingWrong'], words['Warning'], editw = 1)
+                    self.exit_application()      
+                    return          
+                
+    def on_ok(self):
+        """Ask a confirmation for exiting"""
+        exiting = nps.notify_yes_no(words['ConfirmExit'], words['ExitText'], editw = 2)
+        if (exiting):
+            self.exit_application()
+        else:
+            pass #~ Do nothing
+        
+    def exit_application(self):
+        """Closes the GUI"""
+        self.parentApp.setNextForm(None)
+        self.editing = False
+        self.parentApp.switchFormNow()
+                
+########################################################################
+#                                                                      #
+#             GUI: Provides every form of the interface and            #
+#             defines their ID and size                                #
+#                                                                      #
+########################################################################
 
-Lines with no colons are silently ignored. No additional checking is
-performed.
-
-=cut
-
-use strict;
-use warnings;
-
-my ($q,%wm,%saw)='Q'; # Quit Key
-
-while (<DATA>) {
-    chomp;
-    my $sep;
-    $sep |= $_ for /:+/g;
-    $sep or next;
-    my ($k,$n,$cmd)=split /$sep/;
-    $k=uc $k;
-    (warn "$0: Cannot use [$k] as a key for `$n'"),
-      next if $k eq $q;
-    (warn "$0: Duplicate key [$k]. Skipping `$n'"),
-      next if $saw{$k}++;
-    $wm{$k}=[$n,$cmd];
-}
-
-{
-    print "Choose Window Manager:";
-    print "[$_] $wm{$_}[0]" for sort keys %wm;
-    print "[$q] <QUIT>";
+class GUI (nps.NPSAppManaged):
+    """Defines the whole application GUI"""
     
-    chomp(my $in=uc <STDIN>);
-    last if $in eq $q;
-    
-    exists $wm{$in} or
-      (warn "Invalid choice: [$in]\n"), redo;
-    
-    open my $fh, '>', "$ENV{HOME}/.xinitrc" or
-      die "Can't write to ~/.xinitrc: $!\n";
-    print $fh $wm{$in}[1];
-    print <<"EOT";
-`~/.xinitrc' successfully updated for use with $wm{$in}[0]!
-Do you want to start X now? 
-[y/Y] to do so, anything else to quit.
-EOT
-exec 'startx' 
-  if uc <STDIN> eq "Y\n";
-}
+    def onStart( self ):
+        """Adds the forms"""
+        #~ Main form
+        self.addForm('MAIN', MainForm, name = words['MainFormName'])
 
-__END__
-K:KDE:exec startkde
-Xm:Xmonad:exec xmonad
-X4:XFce4:exec startxfce4
-F:Fluxbox:exec fluxbox
-L:LXDE:exec startlxde
-A:Awesome:exec awesome
-I:i3:exec i3
+if ( __name__ == "__main__" ):
+	#~ Run the application
+	gui = GUI().run();
