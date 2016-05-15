@@ -3,13 +3,14 @@
 # Author:       Gabriele Bozzola (sbozzolo)
 # Email:        sbozzolator@gmail.com
 # Date:         11.05.2016
-# Last Edit:    11.05.2016 (sbozzolo)
+# Last Edit:    12.05.2016 (sbozzolo)
 
 #~ This module is used to draw the interface
 import npyscreen as nps
 
-#~ To rename xinitrc
-import os
+#~ To rename xinitrc and to get the HOME
+from os import rename as rename
+from os import getenv as getenv
 
 #~ This dictionary is intended to contain every string of Userconf, 
 #~ so it is easier to modify text and maintain the code compact
@@ -25,7 +26,9 @@ words = {'MainFormName'   : "wmchoose",
          'SomethingWrong' : "Qualcosa e' andato storto! Accipigna!",
          'Success'        : "Successo!",
          'OpSuccess'      : "L'operazione e' stata portata a termine con "
-                            + "successo!",
+                            + "successo!\nRicorda che per avviare "
+                            + "l'interfaccia grafica devi utilizzare il "
+                            + "comando startx.",
          'kde'            : "KDE e' Kebab",
          'xm'             : "xmonad e' BigMac",
          'x4'             : "XFCE e' Pizza",
@@ -125,20 +128,27 @@ class MainForm (nps.ActionFormV2):
             text = "exec awesome\n"
         elif (self.i3.entry_widget.value == True):
             text = "exec i3\n"
-        
+   
+        #~ Get the configuration file path
+        try:
+            xfile = getenv('HOME') + "/.xinitrc"
+        except:
+            nps.notify_confirm(words['SomethingWrong'], words['Warning'], editw = 1)               #~ If something went wrong
+            self.exit_application()
+            return
         
         #~ Search for user's customizations by counting the number of lines
         #~ in the file. A vanilla file should have one line
         try:
-            num = sum(1 for line in open('.xinitrc'))
+            num = sum(1 for line in open(xfile))
         except:
             nps.notify_confirm(words['SomethingWrong'], words['Warning'])               #~ If something went wrong
             self.exit_application()
             return
-            
+                   
         if (num <= 1):
             try:
-                xinit = open(".xinitrc", 'w')   #~ Open the file in write mode
+                xinit = open(xfile, 'w')   #~ Open the file in write mode
                 xinit.truncate()                #~ Erase the configuration file
                 xinit.write(text)               #~ Write configuration
                 xinit.close()                   #~ Closes file
@@ -154,11 +164,11 @@ class MainForm (nps.ActionFormV2):
             cust = nps.notify_yes_no(words['Customization'], words['Warning'], editw = 2)
             if (cust): #~ If he wants delete the last line and rewrite with the new command
                 try:
-                    xinit = open(".xinitrc", 'r')   #~ Open the file in rw mode
+                    xinit = open(xfile, 'r')   #~ Open the file in rw mode
                     lines = xinit.readlines()
                     lines = lines[:-1]
                     xinit.close()
-                    xinit = open(".xinitrc", 'w')
+                    xinit = open(xfile, 'w')
                     xinit.truncate()
                     xinit.writelines(lines)
                     xinit.write(text)
@@ -172,8 +182,8 @@ class MainForm (nps.ActionFormV2):
                     return
             else: #~ If he doesn't want make a backup and write a new conf file
                 try:
-                    os.rename(".xinitrc", ".xinitrcOLD")
-                    xinit = open(".xinitrc", 'w')   #~ Open the file in append mode
+                    rename(xfile, xfile + "OLD")
+                    xinit = open(xfile, 'w')   #~ Open the file in append mode
                     xinit.write("exec startxfce4\n")
                     xinit.close()
                     notify_confirm(words['OpSuccess'] + "\n" + words['Bakupped'], 
