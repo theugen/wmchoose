@@ -30,8 +30,9 @@ words = {'MainFormName'   : "wmchoose",
                             + "l'interfaccia grafica devi utilizzare il "
                             + "comando startx.",
          'kde'            : "KDE e' Kebab",
-         'xm'             : "xmonad e' BigMac",
-         'x4'             : "XFCE e' Pizza",
+         'xm'             : "xmonad e' un'interfaccia per utenti molto esperti",
+         'x4'             : "XFCE e' un'interfaccia semplice e user friendly. "
+                            + "Se sei alle prime armi seleziona questo.",
          'flux'           : "Fluxbox e' Gelato",
          'lxde'           : "LXDE e' Sushi",
          'aw'             : "Awesome e' Piadina",
@@ -76,20 +77,20 @@ class MainForm (nps.ActionFormV2):
         #~ Display the options
         self.add(nps.FixedText, value = words['MainFormText'], editable = False)
         self.nextrely += 1 #~ Shift down the options
-        self.kde = self.add(Box, name = "KDE", min_width = 30, max_height = 5)
-        self.kde.entry_widget.name = words['kde'] #~ Set description
-        self.xm = self.add(Box, name = "xmonad", min_width = 30, max_height = 5)
-        self.xm.entry_widget.name = words['xm']
         self.x4 = self.add(Box, name = "XFCE 4", min_width = 30, max_height = 5)
         self.x4.entry_widget.name = words['x4']
-        self.flux = self.add(Box, name = "Fluxbox", min_width = 30, max_height = 5)
-        self.flux.entry_widget.name = words['flux']
         self.lxde = self.add(Box, name = "LXDE", min_width = 30, max_height = 5)
         self.lxde.entry_widget.name = words['lxde']
+        self.kde = self.add(Box, name = "KDE", min_width = 30, max_height = 5)
+        self.kde.entry_widget.name = words['kde'] #~ Set description
+        self.flux = self.add(Box, name = "Fluxbox", min_width = 30, max_height = 5)
+        self.flux.entry_widget.name = words['flux']
         self.aw = self.add(Box, name = "Awesome", min_width = 30, max_height = 5)
         self.aw.entry_widget.name = words['aw']
         self.i3 = self.add(Box, name = "I3", min_width = 30, max_height = 5)
         self.i3.entry_widget.name = words['i3']
+        self.xm = self.add(Box, name = "xmonad", min_width = 30, max_height = 5)
+        self.xm.entry_widget.name = words['xm']
                     
     def on_cancel(self):
         """Performs checks and change .xinitrc"""
@@ -121,7 +122,7 @@ class MainForm (nps.ActionFormV2):
         elif (self.x4.entry_widget.value == True):
             text = "exec startxfce4\n"
         elif (self.flux.entry_widget.value == True):
-            text = "exec fluxbos\n"
+            text = "exec fluxbox\n"
         elif (self.lxde.entry_widget.value == True):
             text = "exec startlxde\n"
         elif (self.lxde.entry_widget.value == True):
