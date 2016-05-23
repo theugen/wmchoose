@@ -3,7 +3,7 @@
 # Author:       Gabriele Bozzola (sbozzolo)
 # Email:        sbozzolator@gmail.com
 # Date:         11.05.2016
-# Last Edit:    12.05.2016 (sbozzolo)
+# Last Edit:    23.05.2016 (sbozzolo)
 
 #~ This module is used to draw the interface
 import npyscreen as nps
@@ -18,9 +18,10 @@ from os import getenv as getenv
 words = {'MainFormName'   : "wmchoose", 
          'ExitText'       : "Esci",
          'MenuButtonText' : "Seleziona WM",
-         'MainFormText'   : "Questo script ti selezionare il tuo gestore " 
+         'MainFormText'   : "Questo script ti permette di selezionare il "
+                            + "tuo gestore " 
                             + "di interfaccia grafica (Windows Manager)."
-                            + " Per selezionarlo premi invio.",
+                            + " Per selezionare o deselezionare premi spazio.",
          'ConfirmExit'    : "Sicuro di voler uscire?",
          'ExitUserconf'   : "Esci da wmchoose",
          'SomethingWrong' : "Qualcosa e' andato storto! Accipigna!",
@@ -125,7 +126,7 @@ class MainForm (nps.ActionFormV2):
             text = "exec fluxbox\n"
         elif (self.lxde.entry_widget.value == True):
             text = "exec startlxde\n"
-        elif (self.lxde.entry_widget.value == True):
+        elif (self.aw.entry_widget.value == True):
             text = "exec awesome\n"
         elif (self.i3.entry_widget.value == True):
             text = "exec i3\n"
