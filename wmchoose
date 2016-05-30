@@ -18,10 +18,10 @@ from os import getenv as getenv
 words = {'MainFormName'   : "wmchoose", 
          'ExitText'       : "Esci",
          'MenuButtonText' : "Seleziona WM",
-         'MainFormText'   : "Questo script ti permette di selezionare il "
+         'MainFormText1'  : "Questo script ti permette di selezionare il "
                             + "tuo gestore " 
-                            + "di interfaccia grafica (Windows Manager)."
-                            + " Per selezionare o deselezionare premi spazio.",
+                            + "di interfaccia grafica (Windows Manager).",
+         'MainFormText2'  :  "Per selezionare o deselezionare premi spazio.",
          'ConfirmExit'    : "Sicuro di voler uscire?",
          'ExitUserconf'   : "Esci da wmchoose",
          'SomethingWrong' : "Qualcosa e' andato storto! Accipigna!",
@@ -83,7 +83,8 @@ class MainForm (nps.ActionFormV2):
     def create(self):
         """Add to the form the widgets"""
         #~ Display the options
-        self.add(nps.FixedText, value = words['MainFormText'], editable = False)
+        self.add(nps.FixedText, value = words['MainFormText1'], editable = False)
+        self.add(nps.FixedText, value = words['MainFormText2'], editable = False)
         self.nextrely += 1 #~ Shift down the options
         self.x4 = self.add(Box, name = "XFCE 4", min_width = 30, max_height = 5)
         self.x4.entry_widget.name = words['x4']
@@ -91,9 +92,9 @@ class MainForm (nps.ActionFormV2):
         self.lxde.entry_widget.name = words['lxde']
         self.kde = self.add(Box, name = "KDE", min_width = 30, max_height = 5)
         self.kde.entry_widget.name = words['kde'] #~ Set description
-        self.nextrely += 2 #~ Shift down the options
+        self.nextrely += 1 #~ Shift down the options
         self.add(nps.FixedText, value = words['ForExperts'], editable = False)
-        self.nextrely += 2 #~ Shift down the options
+        self.nextrely += 1 #~ Shift down the options
         self.flux = self.add(Box, name = "Fluxbox", min_width = 30, max_height = 5)
         self.flux.entry_widget.name = words['flux']
         self.aw = self.add(Box, name = "Awesome", min_width = 30, max_height = 5)
