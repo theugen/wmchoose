@@ -3,7 +3,7 @@
 # Author:       Gabriele Bozzola (sbozzolo)
 # Email:        sbozzolator@gmail.com
 # Date:         11.05.2016
-# Last Edit:    23.05.2016 (sbozzolo)
+# Last Edit:    30.05.2016 (sbozzolo)
 
 #~ This module is used to draw the interface
 import npyscreen as nps
@@ -30,20 +30,27 @@ words = {'MainFormName'   : "wmchoose",
                             + "successo!\nRicorda che per avviare "
                             + "l'interfaccia grafica devi utilizzare il "
                             + "comando startx.",
-         'kde'            : "KDE e' Kebab",
-         'xm'             : "xmonad e' un'interfaccia per utenti molto esperti",
-         'x4'             : "XFCE e' un'interfaccia semplice e user friendly. "
+         'kde'            : "KDE e' un'interfaccia ricca che ricorda Windows, "
+                            + "ma e' piu' pesante di LXDE.",
+         'xm'             : "xmonad e' un'interfaccia per utenti molto esperti. "
+                            + "Selezionalo solo se sai cosa stai facendo.",
+         'x4'             : "XFCE e' un'interfaccia semplice e user friendly, ma completo. "
                             + "Se sei alle prime armi seleziona questo.",
-         'flux'           : "Fluxbox e' Gelato",
-         'lxde'           : "LXDE e' Sushi",
-         'aw'             : "Awesome e' Piadina",
-         'i3'             : "I3 e' Banana",
+         'flux'           : "Fluxbox e' un'interfaccia leggera con funzionalita' minime "
+                            + "altamente personalizzabile.",
+         'lxde'           : "LXDE e' un'interfaccia semplice e leggera che ricorda Windows, "
+                            + "puoi selezionare questo se non sei esperto.",
+         'aw'             : "Awesome e' un'interfaccia orientato all'utilizzo di shell multipli " 
+                            + "senza finestre floating o tiling.",
+         'i3'             : "I3 e' un'interfaccia orientata all'utilizzo di shell multiple "
+                            + "con finestre floting, tiling e tabbing.",
          'Warning'        : "Attenzione!",
          'MoreThanOne'    : "Non puoi selezionare piu' di un manager!",
          'AtLeastOne'     : "Devi operare una scelta!",
          'Customization'  : "Il tuo file .xinitrc e' stato personalizzato."
                             + " Vuoi conservare le personalizzazioni?",
-         'Backupped'      : "Il tuo file precedente e' salvato in .xinitOLD"
+         'Backupped'      : "Il tuo file precedente e' salvato in .xinitOLD",
+         'ForExperts'     : "Per utenti esperti: "
          }
                             
 ########################################################################
@@ -84,6 +91,9 @@ class MainForm (nps.ActionFormV2):
         self.lxde.entry_widget.name = words['lxde']
         self.kde = self.add(Box, name = "KDE", min_width = 30, max_height = 5)
         self.kde.entry_widget.name = words['kde'] #~ Set description
+        self.nextrely += 2 #~ Shift down the options
+        self.add(nps.FixedText, value = words['ForExperts'], editable = False)
+        self.nextrely += 2 #~ Shift down the options
         self.flux = self.add(Box, name = "Fluxbox", min_width = 30, max_height = 5)
         self.flux.entry_widget.name = words['flux']
         self.aw = self.add(Box, name = "Awesome", min_width = 30, max_height = 5)
