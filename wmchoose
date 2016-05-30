@@ -33,7 +33,7 @@ words = {'MainFormName'   : "wmchoose",
          'kde'            : "KDE e' un'interfaccia ricca che ricorda Windows, "
                             + "ma e' piu' pesante di LXDE.",
          'xm'             : "xmonad e' un'interfaccia per utenti molto esperti. "
-                            + "Selezionalo solo se sai cosa stai facendo.",
+                            + "Selezionala solo se sai cosa stai facendo.",
          'x4'             : "XFCE e' un'interfaccia semplice e user friendly, ma completo. "
                             + "Se sei alle prime armi seleziona questo.",
          'flux'           : "Fluxbox e' un'interfaccia leggera con funzionalita' minime "
