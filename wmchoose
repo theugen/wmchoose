@@ -56,6 +56,7 @@ while (<DATA>) {
     open my $fh, '>', "$ENV{HOME}/.xinitrc" or
       die "Can't write to ~/.xinitrc: $!\n";
     print $fh $wm{$in}[1];
+    print $fh "xbindkey";
     print <<"EOT";
 `~/.xinitrc' successfully updated for use with $wm{$in}[0]!
 Do you want to start X now? 
@@ -66,10 +67,5 @@ exec 'startx'
 }
 
 __END__
-K:KDE:exec startkde
-Xm:Xmonad:exec xmonad
-X4:XFce4:exec startxfce4
-F:Fluxbox:exec fluxbox
-L:LXDE:exec startlxde
-A:Awesome:exec awesome
 I:i3:exec i3
+G:Gnome:exec gnome-session
